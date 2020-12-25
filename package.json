@@ -1,0 +1,19 @@
+{
+  "name": "quick-serve",
+  "version": "0.0.2",
+  "description": "An easy, quick and dirty way to host your static web files with an optional API path interface!",
+  "main": "server-interface.js",
+  "scripts": {
+    "test": "node ./tests",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "web",
+    "server",
+    "dynamic",
+    "static",
+    "simple"
+  ],
+  "author": "fbarda",
+  "license": "MIT"
+}
