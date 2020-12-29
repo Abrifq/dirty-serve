@@ -1,5 +1,5 @@
 {
-  "name": "quick-serve",
+  "name": "dirty-serve",
   "version": "0.0.2",
   "description": "An easy, quick and dirty way to host your static web files with an optional API path interface!",
   "main": "server-interface.js",
