@@ -15,5 +15,8 @@
     "simple"
   ],
   "author": "fbarda",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "mimetype": "0.0.8"
+  }
 }
