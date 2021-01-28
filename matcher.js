@@ -2,7 +2,7 @@
 const matcherSymbol = Symbol(".matcher");
 
 class Matcher {
-    /**@param {string | RegExp} matcher*/
+    /**@param {MatcherTypes} matcher*/
     constructor(matcher) {
         matcher = matcher.valueOf(); //Converting objects to primitives, if possible.
         if (!(typeof matcher === "string" || matcher instanceof RegExp)) {
@@ -25,3 +25,4 @@ class Matcher {
     }
 }
 exports = module.exports = Matcher;
+/**@typedef {string|RegExp} MatcherTypes */

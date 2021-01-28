@@ -9,7 +9,7 @@ const APIList = new Pool();
 class API extends Matcher {
     /**
      *
-     * @param {string | RegExp} matcher - The matcher to trigger on paths.
+     * @param {import("./matcher").MatcherTypes} matcher - The matcher to trigger on paths.
      * @param {APICallback} handlerFunction - The handler function to redirect the http request and response to.
      * @param {string | string[]} [forcedMethod]
      */
@@ -47,7 +47,7 @@ class API extends Matcher {
 
 /**
  * @returns {symbol} - A new unique symbol as an ID for this new API.
- * @param {string | RegExp} matcher - The matcher to trigger on paths.
+ * @param {import("./matcher").MatcherTypes} matcher - The matcher to trigger on paths.
  * @param {APICallback} handlerFunction - The handler function to redirect the http request and response to.
  * @param {string | string[]} [forcedMethod]
  */

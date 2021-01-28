@@ -2,7 +2,7 @@ const Matcher = require("./matcher"), Pool = require("./pool");
 /**@type {Pool<Matcher>} */
 const filterPool = new Pool();
 
-/**@param {string | RegExp} matcher */
+/**@param {import("./matcher").MatcherTypes} matcher */
 exports.add = matcher => filterPool.add(new Matcher(matcher));
 /**@param {symbol} matcherID */
 exports.remove = matcherID => filterPool.remove(matcherID);
