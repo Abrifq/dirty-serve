@@ -1,7 +1,8 @@
 const Matcher = require("./matcher"),
     APICallbackSymbol = Symbol(),
     validMethods = [...require("http").METHODS],
-    Pool = require("./pool");
+    Pool = require("./pool"),
+    { waitATick } = require("./commonUtils");
 
 /**@type {Pool<API>} */
 const APIList = new Pool();
@@ -68,7 +69,7 @@ function removeAPI(apiSymbol) {
  * @param {string} path 
  */
 async function searchAPI(path) {
-    return APIList.asyncFind(api => api.testOn(path));
+    return APIList.find(api => waitATick().then(() => api.testOn(path)));
 }
 
 exports = module.exports = {

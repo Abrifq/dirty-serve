@@ -1,5 +1,4 @@
 //@ts-check
-const { waitATick } = require("./commonUtils");
 /**
  * @template ItemType 
  * @name Pool<ItemType> 
@@ -24,20 +23,24 @@ class Pool {
      * @param {(item:ItemType)=>boolean} matcherFunction 
      * @returns {ItemType | void}
      */
-    find(matcherFunction) {
-        for (let item of this.pool.values()) {
+    findSync(matcherFunction) {
+        const allItems = this.pool.values();
+        for (let item of allItems) {
             if (matcherFunction(item)) return item;
         }
     }
+
     /**
-     * @param {(item:ItemType)=>(Promise<boolean>|boolean)} asyncMatcherFunction 
-     * @returns {Promise<ItemType | void>}
+     * @param {(item:ItemType)=>Promise<boolean>} asyncMatcherFunction
+     * @returns {Promise<void | ItemType>} - Resolves `void` if no item matches. 
      */
-    async asyncFind(asyncMatcherFunction) {
-        for (let item of this.pool.values()) {
-            if (await asyncMatcherFunction(item)) return item;
-            await waitATick();
+    async find(asyncMatcherFunction) {
+        const allItems = this.pool.values();
+        for (let item of allItems) {
+            if (await asyncMatcherFunction(item))
+                return item;
         }
     }
+
 }
 exports = module.exports = Pool;
