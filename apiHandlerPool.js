@@ -1,3 +1,5 @@
+const { apiPages: config } = require("./config");
+
 const Matcher = require("./matcher"),
     APICallbackSymbol = Symbol(),
     validMethods = [...require("http").METHODS],
@@ -20,7 +22,9 @@ class API extends Matcher {
         this[APICallbackSymbol] = handlerFunction;
         if (forcedMethod) {
             forcedMethod = forcedMethod.valueOf();
-            const isString = typeof forcedMethod === "string", isArray = Array.isArray(forcedMethod);
+            const
+                isString = typeof forcedMethod === "string",
+                isArray = Array.isArray(forcedMethod);
 
             if (!(isString || isArray)) {
                 throw "Invalid forcedMethod variable. Please either leave it blank or make it a string or an Array with strings.";
@@ -72,16 +76,22 @@ async function searchAPI(path) {
     return APIList.find(api => waitATick().then(() => api.testOn(path)));
 }
 
+Object.defineProperty(config, "shouldServe", {
+    configurable: false,
+    enumerable: true,
+    get: () => APIList.size > 0
+});
+
 exports = module.exports = {
-    get add() { return addAPI; },
-    get remove() { return removeAPI; },
-    get shouldServe() { return APIList.size > 0; },
-    get findFirstMatchingAPI() { return searchAPI; }
+    add: addAPI,
+    remove: removeAPI,
+    findFirstMatchingAPI: searchAPI
 };
 
 /**
  * @callback APICallback
  * @param {import('http').IncomingMessage} request - The incoming request.
  * @param {import('http').ServerResponse} response - The outgoing response.
+ * @param {string} sanitizedHref - The sanitized href to process.
  * @returns {Promise<void>|void}
  */
