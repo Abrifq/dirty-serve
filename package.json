@@ -17,6 +17,7 @@
   "author": "fbarda",
   "license": "MIT",
   "dependencies": {
-    "mimetype": "0.0.8"
+    "mimetype": "0.0.8",
+    "websocket": "^1.0.33"
   }
 }
