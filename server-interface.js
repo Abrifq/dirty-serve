@@ -1,7 +1,9 @@
 const config = require("./config");
 exports.websocketHandlers = {
     add: require("./websocketHandlerPool").add,
-    remove: require("./websocketHandlerPool").remove
+    remove: require("./websocketHandlerPool").remove,
+    get useNagle() { return config.websocket.useNagle; },
+    set useNagle(value) { config.websocket.useNagle = !!value; }
 };
 exports.pathFilter = {
     add: require("./blacklistURLPool").add,
@@ -23,4 +25,5 @@ Object.defineProperty(exports, "port", {
     get: () => config.general.port,
     set: (val) => config.general.port = val
 });
+
 exports.startServer = require("./server").start;
