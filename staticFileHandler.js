@@ -1,9 +1,37 @@
 const
-    config = require("./config").static,
     { returnErrorPage } = require("./errorPageGenerator"),
     StatusCodeMessages = require("http").STATUS_CODES,
     fileSystem = require("fs"),
+    { pathToFileURL, URL } = require('url'),
     mimeTypes = require("mimetype");
+
+let isStaticPathSet = false,
+    isStaticServerEnabled = true,
+    staticFileSearchPath = pathToFileURL("./").pathname;
+
+const config = {
+    get shouldServe() { return isStaticPathSet && isStaticServerEnabled; },
+    set shouldServe(newVal) { isStaticServerEnabled = !!newVal; },
+    get searchPath() { return staticFileSearchPath; },
+    set searchPath(path) {
+        if (config.general.hasServerStarted) return;
+        //Do not change directory after launching the server.
+        const isString = typeof path === "string",
+            isURL = typeof path === "object" && path instanceof URL;
+        if (!(isString || isURL)) {
+            throw "Path must be an string or an URL pointing to the desired folder.";
+        }
+
+        if (isString) {
+            path = pathToFileURL(path[path.length - 1] === "/" ? path + "/" : path);
+        } else {
+            if (path.protocol !== "file:") throw "Only file URLs are supported.";
+        }
+
+        isStaticPathSet = true;
+        staticFileSearchPath = path.pathname;
+    }
+};
 
 /**
  * @class FileHandler
@@ -28,7 +56,10 @@ function FileHandler(filePath) {
  * @param {string} sanitizedURL
  */
 async function respondStatically({ method = "", headers = {} }, response, sanitizedURL) {
-    const isMethodGET = method === "GET", isMethodHEAD = "HEAD";
+    const
+        isMethodGET = method === "GET",
+        isMethodHEAD = method === "HEAD";
+
     if (!(isMethodHEAD || isMethodGET)) {
         response.writeHead(405, StatusCodeMessages[405]);
     }
@@ -76,7 +107,8 @@ async function respondStatically({ method = "", headers = {} }, response, saniti
 
 }
 
-exports = module.exports = respondStatically;
+exports.interface = respondStatically;
+exports.config = config;
 
 /**
  * @typedef FileHandler

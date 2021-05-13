@@ -3,7 +3,6 @@
 const websocketHandlersPool = new (require("./pool"))();
 const { waitATick } = require('./commonUtils');
 const Matcher = require("./matcher");
-const { websocket: config } = require("./config");
 
 class WebsocketAPIInterface extends Matcher {
     /**
@@ -33,25 +32,18 @@ const removeHandler = symbol => {
     websocketHandlersPool.remove(symbol);
 };
 
+exports.interface = {
+    findFirstEligibleHandler: path => websocketHandlersPool.find(ws => waitATick().then(() => ws.testOn(path))),
+    add: addHandler,
+    remove: removeHandler
+};
+
 let useNagleAlgorithm = false;
-Object.defineProperties(config, {
-    shouldServe: {
-        configurable: false,
-        enumerable: true,
-        get: () => websocketHandlersPool.pool.size > 0
-    },
-    useNagle: {
-        configurable: false,
-        enumerable: true,
-        get: () => useNagleAlgorithm,
-        set: value => { useNagleAlgorithm = !!value; }
-    }
-});
-
-
-exports.findFirstEligibleHandler = path => websocketHandlersPool.find(ws => waitATick().then(() => ws.testOn(path)));
-exports.add = addHandler;
-exports.remove = removeHandler;
+exports.config = {
+    get shouldServe() { return websocketHandlersPool.pool.size > 0; },
+    get useNagle() { return useNagleAlgorithm; },
+    set useNagle(value) { useNagleAlgorithm = !!value; }
+};
 
 /**
  * @callback WebSocketConnectionRegisterCallback

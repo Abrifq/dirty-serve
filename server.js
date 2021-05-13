@@ -1,7 +1,11 @@
-const http = require('http'), { returnErrorPage } = require("./errorPageGenerator"),
-    config = require("./config"), staticPageHandler = require("./staticFileHandler"),
-    websocketServer = require("websocket").server, websocketPool = require("./websocketHandlerPool"),
-    dynamicPageHandler = require("./apiHandlerPool"), urlBlacklist = require("./blacklistURLPool");
+const
+    http = require('http'),
+    { returnErrorPage } = require("./errorPageGenerator"),
+    websocketServer = require("websocket").server,
+    { interface: staticPageHandler, config: staticConfig } = require("./staticFileHandler"),
+    { interface: websocketPool, config: websocketConfig } = require("./websocketHandlerPool"),
+    { interface: dynamicPageHandler, config: apiConfig } = require("./apiHandlerPool"),
+    urlBlacklist = require("./blacklistURLPool");
 
 const sanitizeURL = dirtyURL => //makes sure the path starts with `/` and doesn't go under
     new URL(dirtyURL, "ws://./").href.substr(6);//web directory with `/../` requests.
@@ -19,8 +23,8 @@ async function respond(request, response) {
 
     const path = sanitizeURL(request.url),
         method = request.method,
-        shouldServeAPI = config.apiPages.shouldServe,
-        shouldServeFile = config.static.shouldServe;
+        shouldServeAPI = apiConfig.shouldServe,
+        shouldServeFile = staticConfig.shouldServe;
     if (await urlBlacklist.isForbidden(path)) return returnErrorPage(response, 403);
     if (shouldServeAPI) {
         const eligibleAPI = await dynamicPageHandler.findFirstMatchingAPI(path);
@@ -40,11 +44,11 @@ async function respond(request, response) {
 const server = http.createServer(respond);
 const wsServer = new websocketServer({
     httpServer: server,
-    disableNagleAlgorithm: !config.websocket.useNagle
+    disableNagleAlgorithm: !websocketConfig.useNagle
 });
 
 wsServer.on("request", async function processWebSocketRequest(request) {
-    if (!config.websocket.shouldServe) return;
+    if (!websocketConfig.shouldServe) return;
     const eligibleInterface = await websocketPool.findFirstEligibleHandler(request.resource);
     if (typeof eligibleInterface === "undefined") {
         request.reject(404, "Not Found");
@@ -53,4 +57,16 @@ wsServer.on("request", async function processWebSocketRequest(request) {
     eligibleInterface.registerConnection(request.accept());
 });
 
-exports.start = () => { server.listen(config.general.port, () => { config.general.hasServerStarted = true; }); };
+let hasServerStarted = false;
+exports.config = {
+    get hasServerStarted() { return hasServerStarted; },
+    port: require("process").env["PORT"] || 3000
+};
+exports.start = () => {
+    return hasServerStarted ||
+        server.listen(exports.config.port, () => { hasServerStarted = true; server.ref(); });
+};
+exports.stop = () => {
+    return hasServerStarted &&
+        server.close(() => { hasServerStarted = false; return server.unref(); });
+};

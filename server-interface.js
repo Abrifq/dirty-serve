@@ -1,25 +1,8 @@
 const config = require("./config");
-exports.websocketHandlers = {
-    add: require("./websocketHandlerPool").add,
-    remove: require("./websocketHandlerPool").remove,
-    get useNagle() { return config.websocket.useNagle; },
-    set useNagle(value) { config.websocket.useNagle = !!value; }
-};
-exports.pathFilter = {
-    add: require("./blacklistURLPool").add,
-    remove: require("./blacklistURLPool").remove
-};
-exports.apiPageHandlers = {
-    add: require("./apiHandlerPool").add,
-    remove: require("./apiHandlerPool").remove
-};
-
-exports.staticServer = {
-    get servePath() { return config.static.searchPath; },
-    set servePath(newPath) { config.static.searchPath = newPath; },
-    get enableServer() { return config.static.shouldServe; },
-    set enableServer(bool) { config.static.shouldServe = bool; }
-};
+exports.websocket = config.websocket;
+exports.pathFilter = { add, remove } = require("./blacklistURLPool");
+exports.apiPageHandlers = { add, remove } = require("./apiHandlerPool").interface;
+exports.staticServer = { searchPath, shouldServe } = config.static;
 
 Object.defineProperty(exports, "port", {
     get: () => config.general.port,
@@ -27,3 +10,4 @@ Object.defineProperty(exports, "port", {
 });
 
 exports.startServer = require("./server").start;
+exports.stopServer = require("./server").stop;

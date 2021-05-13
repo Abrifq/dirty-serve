@@ -1,5 +1,3 @@
-const { apiPages: config } = require("./config");
-
 const Matcher = require("./matcher"),
     APICallbackSymbol = Symbol(),
     validMethods = [...require("http").METHODS],
@@ -76,13 +74,9 @@ async function searchAPI(path) {
     return APIList.find(api => waitATick().then(() => api.testOn(path)));
 }
 
-Object.defineProperty(config, "shouldServe", {
-    configurable: false,
-    enumerable: true,
-    get: () => APIList.size > 0
-});
+exports.config = { get shouldServe() { return APIList.size > 0; } };
 
-exports = module.exports = {
+exports.interface = {
     add: addAPI,
     remove: removeAPI,
     findFirstMatchingAPI: searchAPI
