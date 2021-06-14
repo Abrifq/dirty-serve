@@ -2,10 +2,16 @@ const
     http = require('http'),
     { returnErrorPage } = require("./errorPageGenerator"),
     websocketServer = require("websocket").server,
-    { interface: staticPageHandler, config: staticConfig } = require("./staticFileHandler"),
-    { interface: websocketPool, config: websocketConfig } = require("./websocketHandlerPool"),
-    { interface: dynamicPageHandler, config: apiConfig } = require("./apiHandlerPool"),
-    urlBlacklist = require("./blacklistURLPool");
+    { interface: staticPageHandler } = require("./staticFileHandler"),
+    { interface: websocketPool } = require("./websocketHandlerPool"),
+    { interface: dynamicPageHandler } = require("./apiHandlerPool"),
+    urlBlacklist = require("./blacklistURLPool"),
+    {
+        general: config,
+        apiPages: apiConfig,
+        websocket: websocketConfig,
+        static: staticConfig
+    } = require("./config");
 
 const sanitizeURL = dirtyURL => //makes sure the path starts with `/` and doesn't go under
     new URL(dirtyURL, "ws://./").href.substr(6);//web directory with `/../` requests.
@@ -57,16 +63,13 @@ wsServer.on("request", async function processWebSocketRequest(request) {
     eligibleInterface.registerConnection(request.accept());
 });
 
-let hasServerStarted = false;
-exports.config = {
-    get hasServerStarted() { return hasServerStarted; },
-    port: require("process").env["PORT"] || 3000
-};
 exports.start = () => {
-    return hasServerStarted ||
-        server.listen(exports.config.port, () => { hasServerStarted = true; server.ref(); });
+    return config.hasServerStarted ||
+        server.listen(config.port, () => { config.hasServerStarted = true; server.ref(); });
 };
 exports.stop = () => {
-    return hasServerStarted &&
-        server.close(() => { hasServerStarted = false; return server.unref(); });
+    if (config.hasServerStarted) {
+        wsServer.shutDown();
+        server.close(() => { config.hasServerStarted = false; server.unref(); });
+    }
 };

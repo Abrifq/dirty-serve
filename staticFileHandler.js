@@ -3,6 +3,7 @@ const
     StatusCodeMessages = require("http").STATUS_CODES,
     fileSystem = require("fs"),
     { pathToFileURL, URL } = require('url'),
+    serverConfig = require("./config").general,
     mimeTypes = require("mimetype");
 
 let isStaticPathSet = false,
@@ -14,7 +15,7 @@ const config = {
     set shouldServe(newVal) { isStaticServerEnabled = !!newVal; },
     get searchPath() { return staticFileSearchPath; },
     set searchPath(path) {
-        if (config.general.hasServerStarted) return;
+        if (serverConfig.hasServerStarted) return;
         //Do not change directory after launching the server.
         const isString = typeof path === "string",
             isURL = typeof path === "object" && path instanceof URL;
