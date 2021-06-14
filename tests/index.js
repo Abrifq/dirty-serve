@@ -1,6 +1,7 @@
-const { port, startServer, stopServer } = require("../server-interface");
+const { port, startServer, stopServer, staticServer: staticConfig } = require("../server-interface");
 
 async function runTests() {
+    staticConfig.searchPath = "./tests/www";
     startServer();
     const tests = [
         require("./blacklistTester").test,
@@ -9,7 +10,9 @@ async function runTests() {
         require("./webSocketTester").test
     ];
     for (const test of tests) await test(port);
+    console.log("all tests done!");
     stopServer();
+    console.log("stopped server");
     return;
 }
 runTests();

@@ -9,4 +9,4 @@ exports.test = async function () {
     blacklistPool.remove(filterID);
     if (await blacklistPool.isForbidden(triggerText)) throw "Deleted blacklist filter is triggered.";
     return;
-}
+};

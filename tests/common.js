@@ -7,14 +7,14 @@ const { request } = require("http");
 const asyncHTTPTester = (requestOptions, postData) => new Promise((resolve, reject) => {
     const sentRequest = request(requestOptions, res => {
         const bufferList = [];
-        res.on("data", bufferList.push);
+        res.on("data", chunk => bufferList.push(chunk));
         res.on("error", reject);
         res.on("end", () => {
             const content = bufferList.map(buffer => buffer.toString()).join("");
             return resolve({ content, statusCode: res.statusCode, headers: res.headers });
         });
     });
-    if (typeof postData !== undefined) sentRequest.write(postData, "utf8");
+    if (typeof postData !== "undefined") sentRequest.write(postData, "utf8");
     sentRequest.end();
 });
 exports.asyncHTTPRequest = asyncHTTPTester;

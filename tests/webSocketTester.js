@@ -1,7 +1,7 @@
 //I don't know what to test, I will just make a basic echo tester.
 
 const { client: websocketClient } = require("websocket"),
-    { add: addRoute, findFirstEligibleHandler, remove: removeRoute } = require("../websocketHandlerPool"),
+    { add: addRoute, findFirstEligibleHandler, remove: removeRoute } = require("../websocketHandlerPool").interface,
     { websocket: websocketConfig } = require("../config"),
     { waitATick } = require("../commonUtils");
 
@@ -16,7 +16,7 @@ const chatUsers = new Set();
  */
 const registerUser = function (connection) {
     chatUsers.add(
-        connection.on("message", msg => chatUsers.forEach(user => user.send(msg)))
+        connection.on("message", msg => chatUsers.forEach(user => user.send(msg.utf8Data)))
             .on("close", () => chatUsers.delete(connection))
             .on("error", () => chatUsers.delete(connection))
     );
@@ -30,7 +30,7 @@ const testableClient = function (websocketUrl) {
 
     /**@type {string[]} */
     const messageQueue = [];
-    let hasFailed = false;
+    let hasFailed = false, hasConnected = false;
     /**@type {import('websocket').connection } */
     let connection;
 
@@ -39,7 +39,7 @@ const testableClient = function (websocketUrl) {
     /**@returns {AsyncGenerator<string,never,void>} */
     const getNextMessageGenerator = async function* () {
         while (1) {
-            while (!messageQueue.length) {
+            while (messageQueue.length === 0) {
                 if (hasFailed)
                     throw "Websocket connection is closed. Please check the logs.";
                 await waitATick(); //wait a message to come but don't block event loop
@@ -50,7 +50,11 @@ const testableClient = function (websocketUrl) {
     };
 
     const getMessageGenerator = getNextMessageGenerator(messageQueue);
-    this.getNextMessage = () => getMessageGenerator.next();
+    /**@returns {Promise<string>} */
+    this.getNextMessage = () => {
+        if (!hasConnected) throw "Not connected yet";
+        return getMessageGenerator.next().then(res => res.value);
+    };
 
     /**
      * @param {string} msg 
@@ -71,16 +75,36 @@ const testableClient = function (websocketUrl) {
         });
     });
 
-    new websocketClient().on("connect", conn => {
-        connection = conn.on("message", msg => messageQueue.push(msg.utf8Data))
-            .on("error", e => { hasFailed = true; console.error(e); })
-            .on("close", (errCode, errMsg) => { hasFailed = true; console.log(`Websocket connection closed with code ${errCode}.\n"${errMsg}" `); });
-    }).connect(websocketUrl);
+    this.connect = () => new Promise((resolve, reject) => {
+        (new websocketClient())
+            .on("connect", conn => {
+                connection = conn
+                    .on("message", ({ utf8Data: message }) => {
+                        messageQueue.push(message);
+                        console.log(message);
+                    })
+                    .on("error", e => {
+                        hasFailed = true;
+                        console.error(e);
+                        reject(e);
+                    })
+                    .on("close",
+                        (errCode, errMsg) => {
+                            hasFailed = true;
+                            if (errCode === 1000) return;
+                            console.log(`Websocket connection closed with code ${errCode}.\n"${errMsg}" `);
+                        });
+                hasConnected = true;
+                resolve();
+            }).connect(websocketUrl);
+    });
+    this.close = () => { connection.close(); getMessageGenerator.return(); hasConnected = false; }
 };
 
 /**@param {number} port */
 exports.test = async function (port) {
-
+    console.log("Testing websocket server and APIs.");
+    console.group();
     const apiURL = "/api/ws/chat";
     try {
         console.group();
@@ -106,20 +130,23 @@ exports.test = async function (port) {
 
         console.log("Starting to test the chat API.");
         const
-            client1 = new testableClient("localhost:" + port + apiURL),
-            client2 = new testableClient("localhost:" + port + apiURL);
+            client1 = new testableClient("ws://localhost:" + port + apiURL),
+            client2 = new testableClient("ws://localhost:" + port + apiURL);
+        await client1.connect();
+        await client2.connect();
 
-        console.log("When an user sends a message, every user should receive it");
+        console.log("When an user sends a message, every user should receive the same message");
         const sentMsg = "Hello there!";
-        await Promise.all([
-            client1.getNextMessage(),
-            client2.getNextMessage()
-        ]).then(
-            results => results.every(result => result.value === sentMsg)
-        ).then(testStatus => {
-            if (!testStatus)
-                throw "Not every user received the same message!";
-        });
+        await client1.sendMessage(sentMsg)
+            .then(() => Promise.all([
+                client1.getNextMessage(),
+                client2.getNextMessage()
+            ])).then(
+                results => results.every(result => result === sentMsg)
+            ).then(testStatus => {
+                if (!testStatus)
+                    throw "Not every user received the same message!";
+            });
 
         console.log("Removing chat API.");
         removeRoute(apiID);
@@ -131,7 +158,11 @@ exports.test = async function (port) {
         if (websocketConfig.shouldServe)
             throw "The getter has freaked up and returned true";
 
+        console.log("Dropping existing connections");
+        client1.close();
+        client2.close();
     } finally {
         console.groupEnd();
     }
+    console.groupEnd();
 };
