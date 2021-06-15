@@ -44,10 +44,10 @@ async function respond(request, response) {
             else
                 return returnErrorPage(response, 405);
     }
-    else if (shouldServeFile)
+    if (shouldServeFile)
         return staticPageHandler(request, response, path);
-    else
-        return returnErrorPage(response, 501);
+    //if we can't response with anything
+    return returnErrorPage(response, 501);
 }
 
 const server = http.createServer(respond);
