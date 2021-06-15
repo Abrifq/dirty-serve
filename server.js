@@ -36,10 +36,13 @@ async function respond(request, response) {
         const eligibleAPI = await dynamicPageHandler.findFirstMatchingAPI(path);
         if (eligibleAPI)
             if (
-                !eligibleAPI.forcedMethod ||
-                eligibleAPI.forcedMethod && eligibleAPI.forcedMethod.includes(method)
+                !("forcedMethod" in eligibleAPI) ||
+                "forcedMethod" in eligibleAPI &&
+                eligibleAPI.forcedMethod.includes(method)
             )
                 return eligibleAPI.handler(request, response, path);
+            else
+                return returnErrorPage(response, 405);
     }
     else if (shouldServeFile)
         return staticPageHandler(request, response, path);

@@ -68,7 +68,7 @@ async function respondStatically({ method = "", headers = {} }, response, saniti
         response.setHeader("Allow", "GET, HEAD");
     }
     if (!(isMethodHEAD || isMethodGET)) {
-        response.end();
+        return response.end();
     }
 
     const fileHandler = new FileHandler(
