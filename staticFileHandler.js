@@ -2,7 +2,7 @@ const
     { returnErrorPage } = require("./errorPageGenerator"),
     StatusCodeMessages = require("http").STATUS_CODES,
     fileSystem = require("fs"),
-    { pathToFileURL, URL } = require('url'),
+    { pathToFileURL, URL, fileURLToPath } = require('url'),
     serverConfig = require("./config").general,
     mimeTypes = require("mimetype");
 
@@ -30,7 +30,7 @@ const config = {
         }
 
         isStaticPathSet = true;
-        staticFileSearchPath = path.pathname;
+        staticFileSearchPath = fileURLToPath(path);
     }
 };
 
