@@ -1,6 +1,6 @@
 {
-  "name": "dirty-serve",
-  "version": "0.0.2",
+  "name": "@fbarda/dirty-serve",
+  "version": "0.0.6",
   "description": "An easy, quick and dirty way to host your static web files with an optional API path interface!",
   "main": "server-interface.js",
   "scripts": {
@@ -19,5 +19,17 @@
   "dependencies": {
     "mimetype": "^0.0.8",
     "websocket": "^1.0.34"
-  }
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fbarda/dirty-serve.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fbarda/dirty-serve/issues"
+  },
+  "homepage": "https://github.com/fbarda/dirty-serve#readme"
 }

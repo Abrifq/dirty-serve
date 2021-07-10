@@ -64,7 +64,7 @@ function getApiReady(){
 ```
 
 ## Serving static files
-Assuming we have files in "/app/www" we want to serve, but [filter out](#Changing-port) `.git` requests.
+Assuming we have files in "/app/www" we want to serve, but [filter out](#Blacklisting-requests-by-filtering-parts-of-the-requestst) `.git` requests.
 ```js
 const serverInterface = require("dirty-serve");
 serverInterface.pathFilters.add(".git");
