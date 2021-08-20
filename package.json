@@ -23,7 +23,6 @@
   "directories": {
     "test": "tests"
   },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fbarda/dirty-serve.git"

@@ -66,11 +66,11 @@ wsServer.on("request", async function processWebSocketRequest(request) {
     eligibleInterface.registerConnection(request.accept());
 });
 
-exports.start = () => {
+module.exports.start = () => {
     return config.hasServerStarted ||
         server.listen(config.port, () => { config.hasServerStarted = true; server.ref(); });
 };
-exports.stop = () => {
+module.exports.stop = () => {
     if (config.hasServerStarted) {
         wsServer.shutDown();
         server.close(() => { config.hasServerStarted = false; server.unref(); });

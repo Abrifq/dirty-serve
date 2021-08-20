@@ -108,8 +108,8 @@ async function respondStatically({ method = "", headers = {} }, response, saniti
 
 }
 
-exports.interface = respondStatically;
-exports.config = config;
+module.exports.interface = respondStatically;
+module.exports.config = config;
 
 /**
  * @typedef FileHandler

@@ -32,14 +32,14 @@ const removeHandler = symbol => {
     websocketHandlersPool.remove(symbol);
 };
 
-exports.interface = {
+module.exports.interface = {
     findFirstEligibleHandler: path => websocketHandlersPool.find(ws => waitATick().then(() => ws.testOn(path))),
     add: addHandler,
     remove: removeHandler
 };
 
 let useNagleAlgorithm = false;
-exports.config = {
+module.exports.config = {
     get shouldServe() { return websocketHandlersPool.pool.size > 0; },
     get useNagle() { return useNagleAlgorithm; },
     set useNagle(value) { useNagleAlgorithm = !!value; }

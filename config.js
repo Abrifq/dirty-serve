@@ -1,8 +1,8 @@
-exports.general = {
+module.exports.general = {
     hasServerStarted: false,
     port: require("process").env["PORT"] || 3000
 };
 
-exports.static = require("./staticFileHandler").config;
-exports.websocket = require("./websocketHandlerPool").config;
-exports.apiPages = require("./apiHandlerPool").config;
+module.exports.static = require("./staticFileHandler").config;
+module.exports.websocket = require("./websocketHandlerPool").config;
+module.exports.apiPages = require("./apiHandlerPool").config;

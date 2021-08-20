@@ -74,9 +74,9 @@ async function searchAPI(path) {
     return APIList.find(api => waitATick().then(() => api.testOn(path)));
 }
 
-exports.config = { get shouldServe() { return APIList.pool.size > 0; } };
+module.exports.config = { get shouldServe() { return APIList.pool.size > 0; } };
 
-exports.interface = {
+module.exports.interface = {
     add: addAPI,
     remove: removeAPI,
     findFirstMatchingAPI: searchAPI

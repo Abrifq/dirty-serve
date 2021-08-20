@@ -1,13 +1,13 @@
 const config = require("./config");
-exports.websocket = config.websocket;
-exports.pathFilter = { add, remove } = require("./blacklistURLPool");
-exports.apiPageHandlers = { add, remove } = require("./apiHandlerPool").interface;
-exports.staticServer = { searchPath, shouldServe } = config.static;
+module.exports.websocket = config.websocket;
+module.exports.pathFilter = { add, remove } = require("./blacklistURLPool");
+module.exports.apiPageHandlers = { add, remove } = require("./apiHandlerPool").interface;
+module.exports.staticServer = { searchPath, shouldServe } = config.static;
 
-Object.defineProperty(exports, "port", {
+Object.defineProperty(module.exports, "port", {
     get: () => config.general.port,
     set: (val) => config.general.port = val
 });
 
-exports.startServer = require("./server").start;
-exports.stopServer = require("./server").stop;
+module.exports.startServer = require("./server").start;
+module.exports.stopServer = require("./server").stop;

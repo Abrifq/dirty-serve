@@ -18,7 +18,7 @@ function errorPageGenerator(errorCode, errorMessage) {
  * @param {import('http').ServerResponse} response - The Server's ServerResponse class to deliver the http page.
  * @param {number} errorNo - The error's status code.
  */
-exports.returnErrorPage = function (response, errorNo) {
+module.exports.returnErrorPage = function (response, errorNo) {
     const errorMessage = httpErrorCodes[errorNo];
     response.writeHead(errorNo, errorMessage, { "Content-Type": "text/html; charset=UTF-8" });
     response.write(errorPageGenerator(errorNo, errorMessage));
