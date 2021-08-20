@@ -1,6 +1,6 @@
 {
   "name": "@fbarda/dirty-serve",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "An easy, quick and dirty way to host your static web files with an optional API path interface!",
   "main": "server-interface.js",
   "scripts": {
